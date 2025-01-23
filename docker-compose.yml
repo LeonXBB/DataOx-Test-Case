@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  python_app:
+    build: .
+    depends_on:
+      - postgres_db
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres_db:5432/${POSTGRES_DB}
+    volumes:
+      - dumps:/app/dumps   # Use named volume instead of bind mount
+      - logs:/app/logs      # Use named volume for logs
+    networks:
+      - app_network
+    env_file:
+      - .env
+
+  postgres_db:
+    image: postgres:15
+    container_name: postgres_db
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data  # Persistent storage for PostgreSQL
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql  # Mount init.sql to initialize the DB
+    networks:
+      - app_network
+
+networks:
+  app_network:
+    driver: bridge
+
+volumes:
+  dumps:     # Define named volumes
+  logs:
+  postgres_data:

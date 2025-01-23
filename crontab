@@ -1,0 +1,4 @@
+SHELL=/bin/bash
+CRON_TZ=Europe/Kiev
+0 12 * * * export PGPASSWORD=${POSTGRES_PASSWORD} && pg_dump -h postgres_db -U ${POSTGRES_USER} -d ${POSTGRES_DB} > /app/dumps/db_backup_$(date +\%Y\%m\%d).sql 2>&1
+* * * * * /usr/local/bin/python /app/main.py
